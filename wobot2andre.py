@@ -1,5 +1,6 @@
 # xml import
 import xml.etree.ElementTree as ET
+import xml.dom.minidom
 # json import
 import json
 # directory navigate import
@@ -9,17 +10,6 @@ from os.path import isfile, join
 import fnmatch
 # Image
 from PIL import Image
-
-maskFilter = {
-    # 'other':'with_mask', # Needs pos treatment
-    # 'scarf_bandana':'with_mask', # Needs pos treatment
-    # 'face_other_covering':'with_mask', # Needs pos treatment
-    'face_with_mask':'with_mask',
-    'face_with_mask_incorrect':'mask_weared_incorrect',
-    'face_no_mask':'without_mask',
-    'mask_surgical':'with_mask',
-    'mask_colorful' : 'with_mask' 
-}
 
 
 # Verifiy if json file has some classname defined in maskFilter
@@ -41,29 +31,25 @@ def getImgName(obj):
     return obj['FileName']
 
 # create an Array with valid annotations defined in maskFilter
-def getValidAnns(obj, maskFilter):
-    print(str(len(obj['Annotations'])))
-    anns = ET.Element('object')
-    
+def getValidAnnsXml(obj, maskFilter):
+    annArray = []
     for ann in obj['Annotations']:
         if annIsValid(ann, maskFilter):
-            newAnn = {
-                'name' : maskFilter[ann['classname']],
-                'pose' : 'Unspecified',
-                'truncated' : str(0),
-                'occluded' : str(0),
-                'difficult' : str(0),
-                'bndbox': {
-                    'xmin' : str(999),
-                    'ymin' : str(999),
-                    'xmax' : str(999),
-                    'ymax' : str(999)
-                }
-            }
-            print(newAnn)
-            print("============================")
+            newAnn = ET.Element('object')
+            ET.SubElement(newAnn, 'name').text = maskFilter[ann['classname']]
+            ET.SubElement(newAnn, 'pose').text = 'Unspecified'
+            ET.SubElement(newAnn, 'truncated').text = '0'
+            ET.SubElement(newAnn, 'occluded').text = '0'
+            ET.SubElement(newAnn, 'difficult').text = '0'
+            bndbox = ET.SubElement(newAnn, 'bndbox')
+            ET.SubElement(bndbox, 'xmin').text = '777'
+            ET.SubElement(bndbox, 'ymin').text = '888'
+            ET.SubElement(bndbox, 'xmax').text = '999'
+            ET.SubElement(bndbox, 'ymax').text = '000'
+            annArray = annArray + [newAnn]
+    return annArray
 
-def createAnn(fileName, width, height):
+def createAnn(fileName, width, height, anns):
     ann = ET.Element('annotation')
     ET.SubElement(ann, 'folder').text = 'images'
     ET.SubElement(ann, 'filename').text = fileName
@@ -74,71 +60,60 @@ def createAnn(fileName, width, height):
     ET.SubElement(size, 'depth').text = str(3)
 
     ET.SubElement(ann, 'segmented').text = str(0)
+
+    for a in anns:
+        newObj = ET.SubElement(ann, 'object')
+        newObj.extend(a) 
     return ann
 
-def insertAnnObj(ann):
-    pass
 
+annsPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/annotations/'
+imgPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/images/'
 
-def dictMerge(dict1, dict2):
-      dict3 = dict1.copy()   # start with x's keys and values
-      dict3.update(dict2)    # modifies z with y's keys and values & returns None
-      return dict3
 # className to filter images
-
-
-
-
-path = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/'
-anns = 'annotations/'
-imgs = 'images/'
+maskFilter = {
+    # 'other':'with_mask', # Needs pos treatment
+    # 'scarf_bandana':'with_mask', # Needs pos treatment
+    # 'face_other_covering':'with_mask', # Needs pos treatment
+    'face_with_mask':'with_mask',
+    'face_with_mask_incorrect':'mask_weared_incorrect',
+    'face_no_mask':'without_mask',
+    'mask_surgical':'with_mask',
+    'mask_colorful' : 'with_mask' 
+}
 
 # fullPath = 
-annsList = [f for f in listdir(path + anns) if isfile(join(path + anns, f))]
+annsList = [f for f in listdir(annsPath) if isfile(join(annsPath, f))]
 
 # List of files inserted on new database 
 filesList = {}
 
 cont = 0
-
+# print(annsList[:2])
 for ann in annsList:
-    jsonFile = open(path+anns+ann)
+    jsonFile = open(annsPath+ann)
     jsonObj = json.load(jsonFile)
-    if hasValidClass(jsonObj, maskFilter):
-        # cont = cont + 1
+    
+
+    anns = getValidAnnsXml(jsonObj, maskFilter)
+    if len(anns) > 1:
+        cont = cont + 1
+        # getting images informations
         imgName = getImgName(jsonObj)
-        # get dimensions image
-        im = Image.open(path+imgs+imgName)
+        im = Image.open(imgPath+imgName)
         width, height = im.size
-        # print("width:" + str(width) + "height: " + str(height))
-        newXml = createAnn("test.xml", width, height)
-        anns = getValidAnns(jsonObj, maskFilter)
-        exit()
-        # tree = ET.ElementTree(newAnn)
-        # tree.write("filename.xml")
+
+        # print(jsonObj)
         # exit()
-        # print(str(width)+ '   ' + str(height) + '\n')
-    # data = json.load(jsonFile)
-    # for mask in data['Annotations']:
-    #     if mask['classname'] in maskFilter:
-    #         f = data['FileName']
-    #         i = f.find('.')
-    #         imgName = 'maksssksksssW' + f
-    #         annName = 'maksssksksssW' + f[:i] + '.xml'
-    #         
-    #         exit()
+        # Creating new Annotation file 
+        newXml = createAnn(imgName, width, height, anns)
 
-    #         newAnn = createAnn(imgName, width, height, mask, maskFilter)
-    #         print(newAnn)
-    #         exit()
-        # if mask['classname'] == 'hood':
 
-            # print(jsonFile)
-            # cont = cont + 1
-            # if cont > 10:
-                # exit()
-    # print(data)
-    # exit()
+        tree = ET.ElementTree(newXml)
+        tree.write('xmltest.xml')
+
+
+        exit()
 
 print('valid class amount:' + str(cont))
 # print(len(annsList))
