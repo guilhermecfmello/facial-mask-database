@@ -77,21 +77,31 @@ def copyDirectory(source, destination):
         for f in fList:
             fName = os.path.join(source, f)
             if os.path.isfile(fName):
+                print('Copying file ' + source + f + '     to:' + destination + fName)
                 cp(fName, destination)
-        return True
+        return len(fList)
     else:
-        return False
-
-
-
-
-
-
+        return -1
 
 # Conditional to switch between only to count files or create them
 condCount = False
 for arg in sys.argv:
     if arg == '-c': condCount = True
+
+cont = 0
+if condCount:
+    for ann in annsList:
+        jsonFile = open(woAnnsPath+ann)
+        jsonObj = json.load(jsonFile)
+        cont += 1 if len(getValidAnnsXml(jsonObj, maskFilter)) > 0 else 0
+    print('Total files found: ' + str(cont))
+    exit()
+
+
+
+
+
+
 
 woAnnsPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/annotations/'
 woImgPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/images/'
@@ -113,41 +123,30 @@ maskFilter = {
     'mask_colorful' : 'with_mask' 
 }
 
-
 annsList = [f for f in listdir(woAnnsPath) if isfile(join(woAnnsPath, f))]
-
 # List of files inserted on new database 
 filesList = {}
 
-
-cont = 0
-if condCount:
-    for ann in annsList:
-        jsonFile = open(woAnnsPath+ann)
-        jsonObj = json.load(jsonFile)
-        cont += 1 if len(getValidAnnsXml(jsonObj, maskFilter)) > 0 else 0
-    print('Total files found: ' + str(cont))
-    exit()
-
 for ann in annsList:
+    print('converting: ' + ann + '...')
     jsonFile = open(woAnnsPath+ann)
     jsonObj = json.load(jsonFile)
     
     anns = getValidAnnsXml(jsonObj, maskFilter)
-    if len(anns) > 1:
+    if len(anns) > 0:
         cont += 1
         # getting images informations
         imgName = getImgName(jsonObj)
 
         im = Image.open(woImgPath+imgName)
         width, height = im.size
+
         # Setting new files names
         newImgName = imgName[:imgName.find('.')] + 'w' + imgName[imgName.find('.'):] if imgName.find('.') >= 0 else imgName
         newAnnName = newImgName[:newImgName.find('.')] + '.xml' if newImgName.find('.') >= 0 else newImgName + '.xml'
 
         # Creating new Annotation file 
         newXml = createAnn(newImgName, width, height, anns)
-
 
         # Transforming wobotdatabase to andrewmvd format
         try:
@@ -164,18 +163,18 @@ for ann in annsList:
             print("Error creating anns files or copying img files from wobot database")
             exit()
 
-        # Copying andrewmvd database
-        try:
-            # copying imgs
-            copyDirectory(andreImgsPath, newImgsPath)
+print('starting copy andrewmvd...')
+# Copying andrewmvd database
+try:
+    # copying imgs
+    n = copyDirectory(andreImgsPath, newImgsPath)
 
-            # copying annotations
-            copyDirectory(andreAnnsPath, newAnnsPath)
-            
-            # Copying image
-            im.save(newImgsPath + newImgName)
-        except Exception:
-            print("Error creating anns files or copying img files from andrewmvd database")
-            exit()
+    # copying annotations
+    n = copyDirectory(andreAnnsPath, newAnnsPath)
+    cont += n if n > 0 else 0
+except Exception:
+    print("Error creating anns files or copying img files from andrewmvd database")
+    exit()
+print('end copy andrewmvd...')
 
 print('Total files found: ' + str(cont))
