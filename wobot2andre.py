@@ -116,8 +116,8 @@ maskFilter = {
     # 'other':'with_mask', # Needs pos treatment
     # 'scarf_bandana':'with_mask', # Needs pos treatment
     # 'face_other_covering':'with_mask', # Needs pos treatment
-    'face_with_mask':'with_mask',
-    'face_with_mask_incorrect':'mask_weared_incorrect',
+    # 'face_with_mask':'with_mask',
+    # 'face_with_mask_incorrect':'mask_weared_incorrect',
     'face_no_mask':'without_mask',
     'mask_surgical':'with_mask',
     'mask_colorful' : 'with_mask' 

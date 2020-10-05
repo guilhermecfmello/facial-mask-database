@@ -15,18 +15,26 @@ import shutil
 # className to filter images
 maskFilter = ['other']
 
-path = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/'
+path = 'guilhermecfmello/cropped/test/'
 
-examplePath = 'wobotintelligence/Medical-mask/Medical-mask/meta-examples/'
+examplePath = 'guilhermecfmello/cropped/test/examples/'
 anns = 'annotations/'
 imgs = 'images/'
 
 fullPath = path + anns
+# print(listdir(fullPath))
+# exit()
 annsList = [f for f in listdir(fullPath) if isfile(join(fullPath, f))]
-
+annsList = [x for x in annsList if x[len(x)-3:] != 'xml']
+# print(annsList)
+# exit()
 classes = {}
 for ann in annsList:
+    # print(fullPath+ann)
+    # exit()
     jsonFile = open(fullPath+ann)
+    print(jsonFile)
+    exit()
     data = json.load(jsonFile)
     for maskType in data['Annotations']:
         m = maskType['classname']

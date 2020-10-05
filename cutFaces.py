@@ -26,8 +26,8 @@ def getCoordinates(object):
   yMax = int(bndbox.find('ymax').text)
   return xMin, yMin, xMax, yMax
 
-path = 'guilhermecfmello/training/'
-destinyPath = 'guilhermecfmello/cropped/training/'
+path = 'guilhermecfmello/'
+destinyPath = 'guilhermecfmello/cropped/'
 
 sourceAnn = path + 'annotations/'
 sourceImg = path + 'images/'
