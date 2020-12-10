@@ -10,7 +10,7 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
 import os
-for dirname, _, filenames in os.walk('kaggle/input/face-mask-detection/images'):
+for dirname, _, filenames in os.walk('andrewmvd/images'):
     for filename in filenames:
         print(os.path.join(dirname, filename))
 
@@ -33,9 +33,9 @@ for i in range(1,116):
 	dic[f'Object {i}']=[]
 print("Generating data in CSV format....")
 
-for file in os.listdir("kaggle/input/face-mask-detection/annotations"):
+for file in os.listdir("andrewmvd/annotations"):
     row = []
-    xml = et.parse("kaggle/input/face-mask-detection/annotations/"+file) 
+    xml = et.parse("andrewmvd/annotations/"+file) 
     root = xml.getroot()
     img = root[1].text
     row.append(img)
@@ -75,7 +75,7 @@ if os.path.isdir('models/larxel-model'):
     classes = ["without_mask","mask_weared_incorrect","with_mask"]
     labels = []
     data = []
-    image_directories = sorted(glob.glob(os.path.join("kaggle/input/face-mask-detection/images","*.png")))
+    image_directories = sorted(glob.glob(os.path.join("andrewmvd/images","*.png")))
     print("Extracting each data into respective label folders....")
     for idx,image in enumerate(image_directories):
         img  = cv2.imread(image)
@@ -170,7 +170,7 @@ import os
 import cv2
 import random as rand
 
-image_directories = sorted(glob.glob(os.path.join("kaggle/input/face-mask-detection/images","*.png")))
+image_directories = sorted(glob.glob(os.path.join("andrewmvd/images","*.png")))
 j=0
 classes = ["without_mask","mask_weared_incorrect","with_mask"]
 labels = []
