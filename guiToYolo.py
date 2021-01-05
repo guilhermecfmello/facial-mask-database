@@ -22,7 +22,7 @@ import time
 sourcePath = "guilhermecfmello/not-cropped/"
 annPath = sourcePath + "annotations/"
 imgPath = sourcePath + "images/"
-destinyPath = "guilhermecfmello/yolo-format/"
+destinyPath = "guilhermecfmello/yolo-format-90-10/"
 
 def annotationConvert(ann, classMap):
     an = ET.parse(annPath+ann)
