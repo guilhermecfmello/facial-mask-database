@@ -17,64 +17,85 @@ import sys
 # Time for progress bar
 import time
 
-
-
 sourcePath = "guilhermecfmello/dataset-1.2/"
 annPath = sourcePath + "annotations/"
 imgPath = sourcePath + "images/"
-destinyPath = "guilhermecfmello/yolo-format-90-10/"
+destinyPath = "guilhermecfmello/labelme-format/dataset/"
 
 def annotationConvert(ann, classMap):
     an = ET.parse(annPath+ann)
+    annName = ann
     root = an.getroot()
-    newAnns = bndBoxToYolo(root, classMap)
-    imgName = root.find('filename').text
-    txtName = imgName[:imgName.find('.')] + '.txt'
-    copyImage(imgPath, imgName, destinyPath, imgName)
-    writeYoloAnn(destinyPath, txtName, newAnns)
+    size = root.find('size')
+    width = size.find('width').text
+    height = size.find('height').text
+    ann = {}
 
-# Write the yoloAnn on disk
-def writeYoloAnn(path, fileName, anns):
-    f = open(path+fileName, 'w')
-    for ann in anns:
-        f.write(ann)
-    f.close()
+    shapes = bndBoxToShapesLabelme(root, classMap)
+    # constants
+    version = "4.5.6"
+    flags = []
+
+    # annotations infos
+    imgName = root.find('filename').text
+    # imgData = getImageData(imgPath, imgName)
+    # print(imgData)
+    # exit()
+    ann["version"] = version
+    ann["flags"] = flags
+    ann["shapes"] = shapes
+    ann["imagePath"] = imgName
+    ann["imageHeight"] = height
+    ann["imageData"] = None
+    ann["imageWidth"] = width
+    # each face
+    fileName = imgName[:imgName.find('.')] + '.json'
+    # print(json.dumps(ann))
+    # exit()
+    writeToLabelme(destinyPath, fileName, ann)
+    copyImage(imgPath, imgName, destinyPath, imgName)
 
 # Copy the image from source to destiny path
 def copyImage(sourcePath, imgName, destinyPath, destinyName):
     cp(sourcePath+imgName, destinyPath+destinyName)
     return True
 
+# Write the yoloAnn on disk
+def writeToLabelme(path, fileName, ann):
+    f = open(path+fileName, 'w')
+    f.write(json.dumps(ann))
+    f.close()
+
+def getImageData(sourcePath, imgName):
+    f = open(sourcePath+imgName, "r")
+    data = f.read()
+    f.close()
+    return data
+
 # Bounding box PASCAL VOC convertion format to Yolo annotation format
-def bndBoxToYolo(root, classMap):
-    size = root.find('size')
-    imgName = root.find('filename').text
-    imgWidth = int(size.find('width').text)
-    imgHeight = int(size.find('height').text)
+def bndBoxToShapesLabelme(root, classMap):
+    shape_type = "rectangle"
+    flags = {}
+    group_id = None
+
     objs = root.findall('object')
-    newAnns = []
+    shapes = []
     for obj in objs:
+        shape = {}
         objC = obj.find('name').text
-        newClass = classMap[objC]
+
         xMin, yMin, xMax, yMax = getObjBndBox(obj)
-        w = xMax - xMin
-        h = yMax - yMin
-        xCenter = (w/2)+xMin
-        yCenter = (h/2)+yMin
+        points = [[xMin, yMin],[xMax, yMax]]
+        label = classMap[objC]
 
-        # Normalizing values
-        xCenter /= imgWidth
-        yCenter /= imgHeight
-        w /= imgWidth
-        h /= imgHeight
+        shape["label"] = label
+        shape["points"] = points
+        shape["group_id"] = group_id
+        shape["shape_type"] = shape_type
+        shape["flags"] = flags
 
-        yoloAnn = str(newClass) + ' ' 
-        yoloAnn += str(xCenter) + ' '
-        yoloAnn += str(yCenter) + ' '
-        yoloAnn += str(w) + ' '
-        yoloAnn += str(h) + '\n'
-        newAnns.append(yoloAnn)
-    return newAnns
+        shapes.append(shape)
+    return shapes
 
 
 def getObjBndBox(obj):
@@ -86,12 +107,15 @@ def getObjBndBox(obj):
     return xMin, yMin, xMax, yMax
 
 classesMap = {
-    'without_mask': 0,
-    'with_mask': 1,
-    'mask_weared_incorrect': 2
+    'without_mask': "0",
+    'with_mask': "1",
+    'mask_weared_incorrect': "2"
 }
 
 annsList = [f for f in listdir(annPath) if isfile(join(annPath, f))]
+
+# annotationConvert('1801w.xml', classesMap)
+
 
 toolbar_width = 60
 total = len(annsList)

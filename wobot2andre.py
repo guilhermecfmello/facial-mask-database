@@ -107,8 +107,8 @@ woAnnsPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/annotatio
 woImgPath = 'wobotintelligence/Medical-mask/Medical-mask/Medical-Mask/images/'
 andreImgsPath = 'andrewmvd/images/'
 andreAnnsPath = 'andrewmvd/annotations/'
-newAnnsPath = 'guilhermecfmello/annotations/'
-newImgsPath = 'guilhermecfmello/images/'
+newAnnsPath = 'guilhermecfmello/dataset-1.2/annotations/'
+newImgsPath = 'guilhermecfmello/dataset-1.2/images/'
 
 
 # className to filter images
@@ -116,11 +116,11 @@ maskFilter = {
     # 'other':'with_mask', # Needs pos treatment
     # 'scarf_bandana':'with_mask', # Needs pos treatment
     # 'face_other_covering':'with_mask', # Needs pos treatment
-    # 'face_with_mask':'with_mask',
-    # 'face_with_mask_incorrect':'mask_weared_incorrect',
+    'face_with_mask':'with_mask',
+    'face_with_mask_incorrect':'mask_weared_incorrect',
     'face_no_mask':'without_mask',
-    'mask_surgical':'with_mask',
-    'mask_colorful' : 'with_mask' 
+    # 'mask_surgical':'with_mask',
+    # 'mask_colorful' : 'with_mask' 
 }
 
 annsList = [f for f in listdir(woAnnsPath) if isfile(join(woAnnsPath, f))]

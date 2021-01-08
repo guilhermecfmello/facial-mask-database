@@ -28,10 +28,10 @@ filesList = [f for f in listdir(sourcePath) if isfile(join(sourcePath, f))]
 
 # Number of images/annotations for training, validation
 nLarxel = [768, 85]
-nWoobot = [3106, 346]
+nWoobot = [3094, 343]
 
 nLarxelBk = [768, 85]
-nWoobotBk = [3106, 346]
+nWoobotBk = [3094, 343]
 
 # Getting only image files
 imgsList = []

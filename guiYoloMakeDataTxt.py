@@ -27,13 +27,13 @@ destinyPath = 'guilhermecfmello/yolo-format-90-10/'
 prefix = 'data/training/'
 
 imgsList = []
-filesList = [f for f in listdir(validationPath) if isfile(join(validationPath, f))]
+filesList = [f for f in listdir(trainingPath) if isfile(join(trainingPath, f))]
 for f in filesList:
     dot = f.find('.')
     if f[dot:] != '.txt':
         imgsList.append(f)
 
-f = open(destinyPath+'validation.txt', 'w')
+f = open(destinyPath+'training.txt', 'w')
 for img in imgsList:
     f.write(prefix+img+'\n')
 f.close()
