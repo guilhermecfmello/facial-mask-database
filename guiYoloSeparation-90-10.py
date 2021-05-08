@@ -20,18 +20,18 @@ import sys
 import time
 
 
-sourcePath = 'guilhermecfmello/yolo-format-90-10/'
-trainingPath = 'guilhermecfmello/yolo-format-90-10/training/'
-validationPath = 'guilhermecfmello/yolo-format-90-10/validation/'
+sourcePath = 'guilhermecfmello/yolo-format-reduced/reduced/'
+trainingPath = 'guilhermecfmello/yolo-format-reduced/reduced/training/'
+validationPath = 'guilhermecfmello/yolo-format-reduced/reduced/validation/'
 
 filesList = [f for f in listdir(sourcePath) if isfile(join(sourcePath, f))]
 
 # Number of images/annotations for training, validation
-nLarxel = [768, 85]
-nWoobot = [3094, 343]
+nLarxel = [95, 9]
+nWoobot = [166, 19]
 
-nLarxelBk = [768, 85]
-nWoobotBk = [3094, 343]
+nLarxelBk = [95, 9]
+nWoobotBk = [166, 19]
 
 # Getting only image files
 imgsList = []

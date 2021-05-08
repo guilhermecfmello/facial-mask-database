@@ -20,20 +20,18 @@ import sys
 import time
 
 
-sourcePath = 'guilhermecfmello/yolo-format-90-10/'
-trainingPath = sourcePath + 'training/'
-validationPath = sourcePath + 'validation/'
-destinyPath = 'guilhermecfmello/yolo-format-90-10/'
-prefix = 'data/training/'
+sourcePath = 'guilhermecfmello/yolo-format-reduced/reduced/validation/'
+destinyPath = 'guilhermecfmello/yolo-format-reduced/reduced/'
+prefix = 'data/validation/'
 
 imgsList = []
-filesList = [f for f in listdir(trainingPath) if isfile(join(trainingPath, f))]
+filesList = [f for f in listdir(sourcePath) if isfile(join(sourcePath, f))]
 for f in filesList:
     dot = f.find('.')
     if f[dot:] != '.txt':
         imgsList.append(f)
 
-f = open(destinyPath+'training.txt', 'w')
+f = open(destinyPath+'validation.txt', 'w')
 for img in imgsList:
     f.write(prefix+img+'\n')
 f.close()
